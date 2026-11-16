@@ -1,0 +1,46 @@
+# ArgoCD Helm Values for AI-Powered GitOps Platform
+# This configuration deploys ArgoCD with auto-sync enabled and accessible on port 30002
+
+global:
+  domain: argocd.local
+
+# ArgoCD server configuration
+server:
+  service:
+    type: NodePort
+    nodePortHttp: 30002
+    nodePortHttps: 30443
+  ingress:
+    enabled: false
+  insecure: true
+
+# ArgoCD repository server configuration
+repoServer:
+  service:
+    type: ClusterIP
+
+# ArgoCD application controller configuration
+controller:
+  enabled: true
+  replicas: 1
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 128Mi
+
+# ArgoCD configurations
+configs:
+  cm:
+    create: true
+    application.instanceLabelKey: argocd.argoproj.io/instance
+  repositories:
+    # GitOps repository will be added after creation
+  cm:
+    create: true
+  secret:
+    create: true
+    # Initial admin password (argocd-server:admin)
+    argocdServerAdminPassword: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi"

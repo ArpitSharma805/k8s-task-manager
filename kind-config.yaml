@@ -1,0 +1,8 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 30002   # NodePort inside the Kind node
+        hostPort: 30002        # Port you will browse to from the host
+        protocol: TCP
