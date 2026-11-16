@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/ArpitSharma805/k8s-task-manager.git
-    targetRevision: HEAD
+    targetRevision: main
     path: platform-core/gitops-repo/apps
   destination:
     server: https://kubernetes.default.svc
