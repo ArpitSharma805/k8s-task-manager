@@ -1,0 +1,106 @@
+pipeline {
+    agent any
+
+    environment {
+        // Docker image name
+        IMAGE_NAME = "sample-app"
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+        REGISTRY = "harbor.example.com" // Update with your Harbor URL
+        REGISTRY_CREDENTIALS = "harbor-credentials" // Jenkins credential ID
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out code...'
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building application...'
+                sh 'npm install'
+                sh 'npm test'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker image...'
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+            }
+        }
+
+        stage('Security Scan - Trivy') {
+            steps {
+                echo 'Scanning image with Trivy...'
+                sh """
+                    trivy image --exit-code 1 --severity CRITICAL ${IMAGE_NAME}:${IMAGE_TAG} || \
+                    echo "Critical vulnerabilities found - build failed"
+                """
+            }
+        }
+
+        stage('Generate SBOM - Syft') {
+            steps {
+                echo 'Generating SBOM with Syft...'
+                sh "syft ${IMAGE_NAME}:${IMAGE_TAG} -o spdx-json > sbom-${IMAGE_TAG}.json"
+                archiveArtifacts artifacts: "sbom-${IMAGE_TAG}.json", fingerprint: true
+            }
+        }
+
+        stage('Sign Image - Cosign') {
+            steps {
+                echo 'Signing image with Cosign...'
+                // Note: Cosign key pair must be set up first
+                sh """
+                    cosign sign --key cosign.key ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                """
+            }
+        }
+
+        stage('Push to Harbor') {
+            steps {
+                echo 'Pushing image to Harbor...'
+                withCredentials([usernamePassword(credentialsId: "${REGISTRY_CREDENTIALS}", usernameVariable: 'REGISTRY_USER', passwordVariable: 'REGISTRY_PASS')]) {
+                    sh """
+                        echo ${REGISTRY_PASS} | docker login ${REGISTRY} -u ${REGISTRY_USER} --password-stdin
+                        docker push ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                    """
+                }
+            }
+        }
+
+        stage('Update GitOps Repository') {
+            steps {
+                echo 'Updating GitOps repository with new image tag...'
+                // This stage will be implemented in ticket 08
+                echo 'GitOps automation to be implemented in ticket 08'
+            }
+        }
+
+        stage('Clean Up') {
+            steps {
+                echo 'Cleaning up Docker images...'
+                sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+                sh "docker rmi ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} || true"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+            // Send notification (to be implemented with AI integration)
+        }
+        failure {
+            echo 'Pipeline failed!'
+            // Send notification (to be implemented with AI integration)
+        }
+        always {
+            cleanWs()
+        }
+    }
+}

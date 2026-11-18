@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sample-app
+  namespace: argocd
+  labels:
+    app: sample-app
+spec:
+  project: default
+  source:
+  repoURL: https://github.com/ArpitSharma805/k8s-task-manager.git
+  targetRevision: main
+  path: deploy/helm/sample-app
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+  info:
+    - name: Application Details
+      value: Sample Application for AI-Powered GitOps Platform

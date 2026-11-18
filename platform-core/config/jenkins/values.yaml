@@ -1,0 +1,101 @@
+# Jenkins Helm Chart Values
+# Based on: https://github.com/jenkinsci/helm-charts
+
+controller:
+  image:
+    registry: "docker.io"
+    repository: "library/custom-jenkins"
+    tag: ""
+    tagLabel: "jdk25"
+    pullPolicy: "IfNotPresent"
+
+  sidecars:
+    configAutoReload:
+      enabled: false
+  # Use LTS version for stability
+
+  # Resource limits
+  resources:
+    requests:
+      cpu: "1000m"
+      memory: "2Gi"
+    limits:
+      cpu: "2000m"
+      memory: "2Gi"
+
+  # Persistent storage
+  persistence:
+    enabled: true
+    storageClass: "standard"
+    size: "10Gi"
+    accessMode: "ReadWriteOnce"
+
+  # Service configuration
+  serviceType: NodePort
+  servicePort: 8080
+  nodePort: 30003
+
+  # Admin credentials
+  # Initial admin password will be auto-generated
+  # Retrieve with: kubectl exec -n jenkins sts/jenkins -c jenkins -- cat /var/jenkins_home/secrets/initialAdminPassword
+  # Install recommended plugins
+  installPlugins: []
+  # Java options
+  javaOpts: >-
+    -Xmx2048m
+    -Dhudson.slaves.NodeProvisioner.MARGIN=50
+    -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85
+
+  # Disable CSRF for development
+  # ⚠️ SECURITY: ENABLE IN PRODUCTION
+  csrf:
+    defaultCrumbIssuer:
+      enabled: false
+
+  # JCasC configuration
+  JCasC:
+    enabled: true
+    configScripts:
+      welcome-message: |
+        jenkins:
+          systemMessage: "Welcome to AI-Powered GitOps Platform Jenkins"
+
+# Agent configuration
+agent:
+  enabled: true
+  image:
+    repository: "jenkins/inbound-agent"
+    tag: "3263.v9c470eca_9e18-1"
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+
+# Service account
+serviceAccount:
+  create: true
+  name: jenkins
+  annotations: {}
+
+# RBAC
+rbac:
+  create: true
+  readSecrets: true
+
+# Persistence
+persistence:
+  enabled: true
+  storageClass: "standard"
+  size: "10Gi"
+  accessMode: "ReadWriteOnce"
+
+# Network policy
+networkPolicy:
+  enabled: false
+
+# Ingress (disabled, using NodePort)
+ingress:
+  enabled: false

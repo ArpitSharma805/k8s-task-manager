@@ -1,0 +1,17 @@
+# Environment-specific values for sample-app (dev)
+image:
+  tag: "1.0.0"
+  pullPolicy: Never
+
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+config:
+  appVersion: "1.0.0-dev"

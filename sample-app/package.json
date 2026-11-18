@@ -1,0 +1,23 @@
+{
+  "name": "sample-app",
+  "version": "1.0.0",
+  "description": "Sample application for AI-Powered GitOps Platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"No tests configured\" && exit 0"
+  },
+  "keywords": [
+    "express",
+    "sample",
+    "gitops"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

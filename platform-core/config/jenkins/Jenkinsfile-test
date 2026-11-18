@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out code...'
+                checkout scm
+            }
+        }
+
+        stage('Hello World') {
+            steps {
+                echo 'Hello from Jenkins!'
+                sh 'echo "Running on $(hostname)"'
+                sh 'echo "Build number: ${env.BUILD_NUMBER}"'
+                sh 'echo "Git branch: ${env.GIT_BRANCH}"'
+                sh 'echo "Git commit: ${env.GIT_COMMIT}"'
+            }
+        }
+
+        stage('Environment') {
+            steps {
+                echo 'Displaying environment variables...'
+                sh 'env'
+            }
+        }
+
+        stage('Success') {
+            steps {
+                echo 'Pipeline completed successfully!'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Build succeeded!'
+        }
+        failure {
+            echo '❌ Build failed!'
+        }
+        always {
+            echo 'Pipeline finished'
+        }
+    }
+}

@@ -1,0 +1,82 @@
+# Trivy Configuration for AI-Powered GitOps Platform
+# This configuration is used for container and filesystem scanning
+
+# Severity levels to report
+severity:
+  - HIGH
+  - CRITICAL
+
+# Vulnerability types to scan
+vulnerability:
+  type:
+    - os
+    - library
+
+# Skip specific directories
+skip-dirs:
+  - '**/node_modules/**'
+  - '**/vendor/**'
+  - '**/dist/**'
+  - '**/build/**'
+  - '**/.git/**'
+
+# Skip specific files
+skip-files:
+  - '**/*.min.js'
+  - '**/*.min.css'
+  - '**/*.map'
+
+# Output format
+format: table
+
+# Output file (optional, can be overridden by CLI)
+# output: trivy-report.txt
+
+# Scan options
+scan:
+  # Skip DB update (for air-gapped environments)
+  skip-db-update: false
+
+  # Timeout for scanning
+  timeout: 10m
+
+  # Allow insecure connections (for Harbor without TLS)
+  insecure: true
+
+# Vulnerability DB
+db:
+  # Skip DB update
+  skip-update: false
+
+  # Download DB only
+  download-only: false
+
+  # Cache directory
+  cache-dir: /root/.cache/trivy
+
+# Secret scanning
+secret:
+  # Enable secret scanning
+  enabled: false
+
+  # Skip specific secret rules
+  skip-config: false
+
+# Misconfiguration scanning
+misconfig:
+  # Enable misconfiguration scanning
+  enabled: false
+
+  # Skip specific checks
+  skip-checks: []
+
+# License scanning
+license:
+  # Enable license scanning
+  enabled: false
+
+  # License categories to report
+  categories:
+    - forbidden
+    - restricted
+    - unknown

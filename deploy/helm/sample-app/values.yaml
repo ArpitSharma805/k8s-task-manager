@@ -1,0 +1,28 @@
+  # Default values for sample-app
+replicaCount: 1
+
+image:
+  repository: localhost:30004/platform-prod/sample-app
+  pullPolicy: Never
+  tag: "1.0.0"
+
+service:
+  type: ClusterIP
+  port: 3000
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+config:
+  appVersion: "1.0.0"
