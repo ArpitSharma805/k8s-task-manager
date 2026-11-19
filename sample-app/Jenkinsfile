@@ -195,7 +195,7 @@ stage('Generate SBOM') {
                 echo 'Publishing build artifacts...'
                 sh """
                     # Create artifact summary
-                    echo "Build Number: ${BUILD_NUMBER}" > artifacts-summary.txt
+                    echo "Build URL: ${env.BUILD_URL ?: 'N/A'}" >> artifacts-summary.txt
                     echo "Image: ${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG}" >> artifacts-summary.txt
                     echo "Git Commit: ${GIT_COMMIT}" >> artifacts-summary.txt
                     echo "Git Branch: ${GIT_BRANCH}" >> artifacts-summary.txt
