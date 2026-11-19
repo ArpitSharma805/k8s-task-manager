@@ -61,34 +61,46 @@ pipeline {
                   ${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG}
 
                 # Logout
-                podman logout ${HARBOR_REGISTRY}
+                #podman logout ${HARBOR_REGISTRY}
             '''
         }
     }
 }
 
-        stage('Trivy Scan') {
-            steps {
-                echo 'Scanning image with Trivy...'
-                script {
-                    try {
-                        sh """
-                            # Scan image with Trivy
-                            trivy image \
-                                --severity ${TRIVY_SEVERITY} \
-                                --exit-code 1 \
-                                --insecure \
-                                --format json \
-                                --output trivy-report-${IMAGE_TAG}.json \
-                                ${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG}
-                        """
-                    } catch (Exception e) {
-                        error "Trivy scan found HIGH or CRITICAL vulnerabilities. Build failed."
-                    }
+        
+stage('Trivy Scan') {
+    steps {
+        echo 'Scanning image with Trivy...'
+
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'harbor-credentials',
+                usernameVariable: 'HARBOR_USER',
+                passwordVariable: 'HARBOR_PASS'
+            )
+        ]) {
+            script {
+                try {
+                    sh """
+                        trivy image \
+                            --username ${HARBOR_USER} \
+                            --password ${HARBOR_PASS} \
+                            --severity ${TRIVY_SEVERITY} \
+                            --exit-code 1 \
+                            --insecure \
+                            --format json \
+                            --output trivy-report-${IMAGE_TAG}.json \
+                            ${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG}
+                    """
+                } catch (Exception e) {
+                    error "Trivy scan found HIGH or CRITICAL vulnerabilities. Build failed."
                 }
-                archiveArtifacts artifacts: "trivy-report-${IMAGE_TAG}.json", fingerprint: true
             }
         }
+
+        archiveArtifacts artifacts: "trivy-report-${IMAGE_TAG}.json", fingerprint: true
+    }
+}
 
         stage('Generate SBOM') {
             steps {
