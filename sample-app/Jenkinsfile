@@ -154,11 +154,11 @@ stage('Generate SBOM') {
 
                             # Sign image with annotations
                             cosign sign --key ${COSIGN_KEY} \
-                                -a "build.number=${BUILD_NUMBER}" \
-                                -a "build.url=${BUILD_URL}" \
-                                -a "git.commit=${GIT_COMMIT}" \
-                                -a "git.branch=${GIT_BRANCH}" \
-                                ${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG}
+                                -a "build.number=${env.BUILD_NUMBER}" \
+                                -a "build.url=${env.BUILD_URL}" \
+                                -a "git.commit=${env.GIT_COMMIT}" \
+                                -a "git.branch=${env.GIT_BRANCH}" \
+                                 ${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG}
                         """
                     }
                 }
