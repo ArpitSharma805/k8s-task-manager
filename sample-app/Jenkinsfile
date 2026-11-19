@@ -25,8 +25,11 @@ pipeline {
             steps {
                 echo 'Building container image with Podman...'
                 sh """
-                    podman build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                """
+                   podman build \
+              -t ${IMAGE_NAME}:${IMAGE_TAG} \
+              -f sample-app/Dockerfile \
+              sample-app
+        """
             }
         }
 
