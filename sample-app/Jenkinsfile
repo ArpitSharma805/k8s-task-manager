@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Harbor configuration (cluster-internal)
-        HARBOR_REGISTRY = "harbor-registry.harbor.svc.cluster.local:5000"
+        HARBOR_REGISTRY = "harbor.harbor.svc.cluster.local"
         HARBOR_PROJECT = "platform-prod"
         IMAGE_NAME = "sample-app"
         IMAGE_TAG = "${env.BUILD_NUMBER}"
