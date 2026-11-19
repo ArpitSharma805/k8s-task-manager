@@ -8,6 +8,7 @@ pipeline {
         IMAGE_NAME = "sample-app"
         IMAGE_TAG = "${env.BUILD_NUMBER}"
 
+        REGISTRY_TLS_VERIFY = "false"
         // Security tool configuration
         TRIVY_SEVERITY = "HIGH,CRITICAL"
         COSIGN_ANNOTATIONS = "build.number=${BUILD_NUMBER},build.url=${BUILD_URL}"
@@ -34,31 +35,37 @@ pipeline {
         }
 
         stage('Push to Harbor') {
-            steps {
-                echo 'Pushing image to Harbor...'
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'harbor-credentials',
-                        usernameVariable: 'HARBOR_USER',
-                        passwordVariable: 'HARBOR_PASS'
-                    )
-                ]) {
-                    sh """
-                        # Tag image for Harbor
-                        podman tag ${IMAGE_NAME}:${IMAGE_TAG} ${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG}
+    steps {
+        echo 'Pushing image to Harbor...'
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'harbor-credentials',
+                usernameVariable: 'HARBOR_USER',
+                passwordVariable: 'HARBOR_PASS'
+            )
+        ]) {
+            sh '''
+                # Tag image for Harbor
+                podman tag ${IMAGE_NAME}:${IMAGE_TAG} ${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG}
 
-                        # Login to Harbor
-                        echo ${HARBOR_PASS} | podman login ${HARBOR_REGISTRY} -u ${HARBOR_USER} --password-stdin
+                # Login to Harbor (HTTP registry)
+                echo "${HARBOR_PASS}" | podman login \
+                  --tls-verify=false \
+                  -u "${HARBOR_USER}" \
+                  --password-stdin \
+                  ${HARBOR_REGISTRY}
 
-                        # Push image
-                        podman push ${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG}
+                # Push image
+                podman push \
+                  --tls-verify=false \
+                  ${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG}
 
-                        # Logout
-                        podman logout ${HARBOR_REGISTRY}
-                    """
-                }
-            }
+                # Logout
+                podman logout ${HARBOR_REGISTRY}
+            '''
         }
+    }
+}
 
         stage('Trivy Scan') {
             steps {
