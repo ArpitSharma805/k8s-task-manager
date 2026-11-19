@@ -155,7 +155,6 @@ stage('Generate SBOM') {
                             cosign sign \
                                  --allow-http-registry \
                                  --allow-insecure-registry \
-                                 --tlog-upload=false \
                                  --key ${COSIGN_KEY} \
                                  -a "build.number=${env.BUILD_NUMBER}" \
                                  -a "build.url=${env.BUILD_URL}" \
