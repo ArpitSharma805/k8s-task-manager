@@ -11,7 +11,6 @@ pipeline {
         REGISTRY_TLS_VERIFY = "false"
         // Security tool configuration
         TRIVY_SEVERITY = "HIGH,CRITICAL"
-       #COSIGN_ANNOTATIONS = "build.number=${BUILD_NUMBER},build.url=${BUILD_URL}"
     }
 
     stages {
