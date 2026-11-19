@@ -1,0 +1,34 @@
+
+# Corporate certificates
+*.cer
+*.crt
+
+# Archives
+*.tar
+*.tar.gz
+
+# Trivy reports
+trivy-report-*.json
+
+# SBOMs
+sbom-*.json
+sbom-*.spdx.json
+sbom-*.cyclonedx.json
+
+# Cosign signatures
+*.sig
+
+# Keys
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Helm downloads
+*.tgz
+jenkins/
+
+# Helm downloads
+*.tgz
+jenkins/
+node_modules/

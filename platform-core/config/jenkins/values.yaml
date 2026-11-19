@@ -9,6 +9,18 @@ controller:
     tagLabel: "jdk25"
     pullPolicy: "IfNotPresent"
 
+  podSecurityContextOverride:
+    runAsUser: 0
+    runAsGroup: 0
+    runAsNonRoot: false
+
+  containerSecurityContext:
+    runAsUser: 0
+    runAsGroup: 0
+    privileged: true
+    allowPrivilegeEscalation: true
+    readOnlyRootFilesystem: false
+
   sidecars:
     configAutoReload:
       enabled: false
@@ -99,3 +111,4 @@ networkPolicy:
 # Ingress (disabled, using NodePort)
 ingress:
   enabled: false
+
