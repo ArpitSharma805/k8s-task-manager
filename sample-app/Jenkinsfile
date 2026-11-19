@@ -115,6 +115,7 @@ stage('Generate SBOM') {
             )
         ]) {
             sh '''
+                export SYFT_REGISTRY_INSECURE_USE_HTTP=true
                 export SYFT_REGISTRY_INSECURE_SKIP_TLS_VERIFY=true
 
                 echo "$HARBOR_PASS" | syft login \
@@ -122,13 +123,13 @@ stage('Generate SBOM') {
                   --username "$HARBOR_USER" \
                   --password-stdin
 
-                syft scan registry:${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG} \
+                syft scan harbor.harbor.svc.cluster.local/platform-prod/sample-app:${IMAGE_TAG} \
                   -o spdx-json=sbom-${IMAGE_TAG}.spdx.json
 
-                syft scan registry:${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG} \
+                syft scan harbor.harbor.svc.cluster.local/platform-prod/sample-app:${IMAGE_TAG} \
                   -o cyclonedx-json=sbom-${IMAGE_TAG}.cyclonedx.json
 
-                syft scan registry:${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG} \
+                syft scan harbor.harbor.svc.cluster.local/platform-prod/sample-app:${IMAGE_TAG} \
                   -o table=sbom-${IMAGE_TAG}.txt
             '''
         }
@@ -136,6 +137,7 @@ stage('Generate SBOM') {
         archiveArtifacts artifacts: "sbom-${IMAGE_TAG}.*", fingerprint: true
     }
 }
+                
                  
 
         stage('Sign Image') {
