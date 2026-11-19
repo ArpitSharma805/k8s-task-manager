@@ -199,7 +199,7 @@ stage('Generate SBOM') {
                     echo "Image: ${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG}" >> artifacts-summary.txt
                     echo "Git Commit: ${GIT_COMMIT}" >> artifacts-summary.txt
                     echo "Git Branch: ${GIT_BRANCH}" >> artifacts-summary.txt
-                    echo "Build URL: ${BUILD_URL}" >> artifacts-summary.txt
+                    echo "Build URL: ${env.BUILD_URL ?: 'N/A'}" >> artifacts-summary.txt
                 """
                 archiveArtifacts artifacts: 'artifacts-summary.txt', fingerprint: true
             }
