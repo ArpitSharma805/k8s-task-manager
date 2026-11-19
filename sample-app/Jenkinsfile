@@ -102,25 +102,41 @@ stage('Trivy Scan') {
     }
 }
 
-        stage('Generate SBOM') {
-            steps {
-                echo 'Generating SBOM with Syft...'
-                sh """
-                    # Generate SPDX SBOM
-                    syft ${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG} \
-                        -o spdx-json=sbom-${IMAGE_TAG}.spdx.json
 
-                    # Generate CycloneDX SBOM
-                    syft ${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG} \
-                        -o cyclonedx-json=sbom-${IMAGE_TAG}.cyclonedx.json
+stage('Generate SBOM') {
+    steps {
+        echo 'Generating SBOM with Syft...'
 
-                    # Generate table for quick view
-                    syft ${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG} \
-                        -o table=sbom-${IMAGE_TAG}.txt
-                """
-                archiveArtifacts artifacts: "sbom-${IMAGE_TAG}.*", fingerprint: true
-            }
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'harbor-credentials',
+                usernameVariable: 'HARBOR_USER',
+                passwordVariable: 'HARBOR_PASS'
+            )
+        ]) {
+            sh """
+                export SYFT_REGISTRY_INSECURE_SKIP_TLS_VERIFY=true
+
+                syft registry:${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG} \
+                    --registry-username ${HARBOR_USER} \
+                    --registry-password ${HARBOR_PASS} \
+                    -o spdx-json=sbom-${IMAGE_TAG}.spdx.json
+
+                syft registry:${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG} \
+                    --registry-username ${HARBOR_USER} \
+                    --registry-password ${HARBOR_PASS} \
+                    -o cyclonedx-json=sbom-${IMAGE_TAG}.cyclonedx.json
+
+                syft registry:${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG} \
+                    --registry-username ${HARBOR_USER} \
+                    --registry-password ${HARBOR_PASS} \
+                    -o table=sbom-${IMAGE_TAG}.txt
+            """
         }
+
+        archiveArtifacts artifacts: "sbom-${IMAGE_TAG}.*", fingerprint: true
+    }
+}        
 
         stage('Sign Image') {
             steps {
