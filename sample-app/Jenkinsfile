@@ -181,7 +181,7 @@ stage('Generate SBOM') {
                             cosign verify \
                                  --allow-http-registry \
                                  --allow-insecure-registry \
-                                 --tlog-upload=false \
+                                 --insecure-ignore-tlog=true \
                                  --key ${COSIGN_PUB} \
                                  ${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${IMAGE_NAME}:${IMAGE_TAG}
                         """
