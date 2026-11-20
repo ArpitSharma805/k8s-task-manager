@@ -2,7 +2,7 @@
 replicaCount: 1
 
 image:
-  repository: harbor-core.harbor-system.svc.cluster.local/platform-prod/sample-app
+  repository: harbor-core.harbor.svc.cluster.local/platform-prod/sample-app
   pullPolicy: IfNotPresent
   tag: "19"
 
